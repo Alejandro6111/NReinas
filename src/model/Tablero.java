@@ -1,129 +1,193 @@
-package model; 
+package model;
 
+/**
+ * Representa el tablero de ajedrez y la lógica para manipularlo en el contexto
+ * del problema de las N-Reinas. Gestiona la colocación y validación de
+ * posiciones de las reinas.
+ *
+ * @author Equipo 
+ * @version 1.0 10/05/2025
+ */
 public class Tablero {
-    private int [][] tablero;
+    /**
+     * Matriz bidimensional que representa el estado del tablero.
+     * Un valor de 0 indica una casilla vacía, y 1 indica una reina.
+     */
+    private int[][] tablero;
+    /**
+     * Dimensión del tablero (N x N). Para un tablero de 8x8, tamano es 8.
+     */
     private int tamano;
 
-    // Constructor 
-    public Tablero(int tamano){
+    /**
+     * Constructor para la clase Tablero.
+     * Inicializa un tablero vacío del tamaño especificado.
+     *
+     * @param tamano La dimensión N del tablero (N x N).
+     */
+    public Tablero(int tamano) {
         this.tamano = tamano;
         this.tablero = new int[tamano][tamano];
-        // Inicializamos tablero
-        for (int i = 0; i < tamano; i++){
-            for (int j = 0; j < tamano; j++){
-                this.tablero[i][j] = 0; // 0 Vaio 1 Reina
+        // Inicializamos tablero con 0s (casillas vacías)
+        for (int i = 0; i < tamano; i++) {
+            for (int j = 0; j < tamano; j++) {
+                this.tablero[i][j] = 0;
             }
-        }
-    } 
-    
-    // Metodo para colocar una reina en una posicion 
-    public boolean mColocarReina (int fila, int columna){
-        if (mEsPosicionValida(fila, columna)) {
-            this.tablero[fila][columna] = 1; // Marcamos que hay reina
-            return true; 
-        }
-        return false;
-    }    
-
-    
-    // Metodo para quitar una reina 
-    public void mQuitarReina(int fila, int columna){
-        if (mEsPosicionValida(fila, columna)){
-            this.tablero[fila][columna] = 0; // Marcamos como vacia 
         }
     }
 
-    // Metodo para verificar si una posicion es valida dentro de los limites del tablero 
-    public boolean mEsPosicionValida(int fila, int columna){
+    /**
+     * Coloca una reina en la posición especificada del tablero.
+     *
+     * @param fila    La fila (0-indexada) donde se colocará la reina.
+     * @param columna La columna (0-indexada) donde se colocará la reina.
+     * @return {@code true} si la reina fue colocada exitosamente (posición válida),
+     * {@code false} si la posición está fuera de los límites del tablero.
+     */
+    public boolean mColocarReina(int fila, int columna) {
+        if (mEsPosicionValida(fila, columna)) {
+            this.tablero[fila][columna] = 1; // Marcamos que hay reina
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Quita una reina de la posición especificada del tablero, marcando la casilla como vacía.
+     * Es útil para el algoritmo de backtracking.
+     *
+     * @param fila    La fila (0-indexada) de donde se quitará la reina.
+     * @param columna La columna (0-indexada) de donde se quitará la reina.
+     */
+    public void mQuitarReina(int fila, int columna) {
+        if (mEsPosicionValida(fila, columna)) {
+            this.tablero[fila][columna] = 0; // Marcamos como vacía
+        }
+    }
+
+    /**
+     * Verifica si una posición dada (fila, columna) está dentro de los límites del tablero.
+     *
+     * @param fila    La fila (0-indexada) a verificar.
+     * @param columna La columna (0-indexada) a verificar.
+     * @return {@code true} si la posición es válida, {@code false} en caso contrario.
+     */
+    public boolean mEsPosicionValida(int fila, int columna) {
         return fila >= 0 && fila < this.tamano && columna >= 0 && columna < this.tamano;
     }
 
-    // Metodo para verificar si es seguro colocar una reina (Fila, Columna)
-    public boolean mEsSeguro(int fila, int columna){
-        // Si ya hay Reina en una casilla, no es seguro
-        if (!mEsPosicionValida(fila, columna) || this.tablero[fila][columna] == 1){
+    /**
+     * Verifica si es seguro colocar una reina en la posición especificada (fila, columna)
+     * sin que sea amenazada por otras reinas ya presentes en el tablero.
+     * Una posición es segura si no hay otra reina en la misma fila, columna o diagonales.
+     *
+     * @param fila    La fila (0-indexada) donde se intentaría colocar la reina.
+     * @param columna La columna (0-indexada) donde se intentaría colocar la reina.
+     * @return {@code true} si es seguro colocar la reina, {@code false} si la posición
+     * está amenazada o fuera de los límites, o si ya hay una reina allí.
+     */
+    public boolean mEsSeguro(int fila, int columna) {
+        // Si la posición no es válida o ya hay una reina, no es seguro.
+        if (!mEsPosicionValida(fila, columna) || this.tablero[fila][columna] == 1) {
             return false;
         }
 
-        // Verificar fila hacia la izquiera
-        for (int c = 0; c < columna; c++){
-            if (this.tablero[fila][c] == 1){
+        // Verificar fila hacia la izquierda
+        for (int c = 0; c < columna; c++) {
+            if (this.tablero[fila][c] == 1) {
                 return false;
             }
         }
         // Verificar la fila hacia la derecha
-        for (int c = columna + 1; c < this.tamano; c++){
-            if (this.tablero[fila][c] == 1){
+        for (int c = columna + 1; c < this.tamano; c++) {
+            if (this.tablero[fila][c] == 1) {
                 return false;
             }
         }
-        // Verificar columna entera 
-        for (int r = 0; r < this.tamano; r++){
-            if (r == fila) continue; // Para no recorrer la misma casilla
-            if (this.tablero[r][columna] == 1){
+        // Verificar columna entera (excepto la propia casilla)
+        for (int r = 0; r < this.tamano; r++) {
+            if (r == fila) continue; // No chequear la misma casilla (ya cubierto arriba)
+            if (this.tablero[r][columna] == 1) {
                 return false;
             }
         }
-        // Verificar diagonal superrior izquierda   
-        for (int r = fila - 1, c = columna -1; r >= 0 && c >= 0; r--, c--){
-            if (this.tablero[r][c] == 1){
+        // Verificar diagonal superior izquierda
+        for (int r = fila - 1, c = columna - 1; r >= 0 && c >= 0; r--, c--) {
+            if (this.tablero[r][c] == 1) {
                 return false;
             }
         }
-        // Verificar diagonal inferior izquierfa
-        for (int r = fila + 1, c = columna -1; r < this.tamano && c >= 0; r++, c--){
-            if (this.tablero[r][c] == 1){
+        // Verificar diagonal inferior izquierda
+        for (int r = fila + 1, c = columna - 1; r < this.tamano && c >= 0; r++, c--) {
+            if (this.tablero[r][c] == 1) {
                 return false;
             }
         }
-        // Verificar diagonal superor derecha
-        for (int r = fila - 1, c = columna + 1; r >= 0 && c < this.tamano; r--, c++){
-            if (this.tablero[r][c] == 1){
+        // Verificar diagonal superior derecha
+        for (int r = fila - 1, c = columna + 1; r >= 0 && c < this.tamano; r--, c++) {
+            if (this.tablero[r][c] == 1) {
                 return false;
             }
         }
         // Verificar diagonal inferior derecha
-        for (int r = fila + 1, c = columna + 1; r < this.tamano && c < this.tamano; r++, c++){
-            if (this.tablero[r][c] == 1){
+        for (int r = fila + 1, c = columna + 1; r < this.tamano && c < this.tamano; r++, c++) {
+            if (this.tablero[r][c] == 1) {
                 return false;
             }
         }
         return true;
     }
 
-    // Metodo para obtener una representacion del tablero 
-    public int[][] mGetTableroState(){
+    /**
+     * Devuelve una copia del estado actual del tablero.
+     * Esto previene modificaciones externas directas a la matriz interna del tablero.
+     *
+     * @return Una nueva matriz {@code int[][]} que es una copia del estado del tablero.
+     */
+    public int[][] mGetTableroState() {
         int[][] copiaTablero = new int[this.tamano][this.tamano];
-        for (int i = 0; i < this.tamano; i++){
-            System.arraycopy(this.tablero[i], 0 , copiaTablero [i], 0 , this.tamano);
+        for (int i = 0; i < this.tamano; i++) {
+            System.arraycopy(this.tablero[i], 0, copiaTablero[i], 0, this.tamano);
         }
         return copiaTablero;
     }
 
-    // Getter para el tamaño 
-    public int mGeTamano(){
+    /**
+     * Obtiene el tamaño (dimensión N) del tablero.
+     *
+     * @return El tamaño del tablero.
+     */
+    public int mGetTamano() { // Corregido: mGeTamano a mGetTamano
         return this.tamano;
     }
 
-    // Metodo simple para impromir el tablero en la consola
-    public void mImprimirTableroConsola(){
-        System.out.println("Estado actual del tablero: ");
-        for (int i = 0; i < tamano; i++){
-            for (int j = 0; j < tamano; j++){
-                System.out.println(this.tablero[i][j] + "");
+    /**
+     * Imprime el estado actual del tablero en la consola.
+     * Útil principalmente para propósitos de depuración rápida.
+     * Utiliza 0 para casillas vacías y 1 para reinas.
+     */
+    public void mImprimirTableroConsola() {
+        System.out.println("Estado actual del tablero (debug): ");
+        for (int i = 0; i < tamano; i++) {
+            for (int j = 0; j < tamano; j++) {
+                System.out.print(this.tablero[i][j] + " "); // Modificado para imprimir en una línea
             }
             System.out.println();
         }
         System.out.println("---------------------");
     }
 
-    // Metodo para obtener el valor de una celda espeficica 
-    public int mGetValorCelda(int fila, int columna){
-        if (mEsPosicionValida(fila, columna)){
+    /**
+     * Obtiene el valor de una celda específica del tablero.
+     *
+     * @param fila    La fila (0-indexada) de la celda.
+     * @param columna La columna (0-indexada) de la celda.
+     * @return El valor de la celda (0 si vacía, 1 si reina), o -1 si la posición es inválida.
+     */
+    public int mGetValorCelda(int fila, int columna) {
+        if (mEsPosicionValida(fila, columna)) {
             return this.tablero[fila][columna];
         }
-        return -1;
+        return -1; // Indica error o posición inválida
     }
-
-    
 }

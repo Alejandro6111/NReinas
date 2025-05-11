@@ -3,116 +3,158 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementa el algoritmo de backtracking para resolver el problema de las N-Reinas.
+ * Encuentra todas las posibles configuraciones de N reinas en un tablero de N x N
+ * de tal manera que ninguna reina amenace a otra, dada una posición inicial para la primera reina.
+ *
+ * @author Equipo 
+ * @version 1.0 10/05/2025
+ */
 public class SolucionadorReinas {
+    /**
+     * Instancia del tablero actual sobre el que se está trabajando para encontrar soluciones.
+     */
     private Tablero tableroActual;
+    /**
+     * Lista que almacena todas las configuraciones de tablero que representan soluciones válidas.
+     * Cada solución es una matriz {@code int[][]}.
+     */
     private List<int[][]> solucionesEncontradas;
+    /**
+     * Tamaño del tablero (N).
+     */
     private int tamanoTablero;
-    private int filaInicialFija = -1; // Indica que no hay fila inicial fija
-    private int columnaInicialFija = -1; // Indica que no hay columna inicial fija
+    /**
+     * Fila (0-indexada) de la primera reina colocada por el usuario.
+     * Se considera fija durante la búsqueda de soluciones. Vale -1 si no hay reina inicial fija.
+     */
+    private int filaInicialFija = -1;
+    /**
+     * Columna (0-indexada) de la primera reina colocada por el usuario.
+     * Se considera fija durante la búsqueda de soluciones. Vale -1 si no hay reina inicial fija.
+     */
+    private int columnaInicialFija = -1;
 
-    // Constructor
-    public SolucionadorReinas(int tamano){
+    /**
+     * Constructor para la clase SolucionadorReinas.
+     *
+     * @param tamano El tamaño N del tablero para el cual se resolverá el problema.
+     */
+    public SolucionadorReinas(int tamano) {
         this.tamanoTablero = tamano;
         this.solucionesEncontradas = new ArrayList<>();
-        // El tablero se crea cuando se inicie la resolucion para una reina inicial
+        // El tablero se crea cuando se invoca mEncontrarSolucionesConReinaInicial.
     }
 
     /**
-     * Metodo principal para iniciar la busqueda solucones
-     * El usuario ingresa la posicion de la primera Reina
-     * @param filaReinaInicial Fila donde el usuiario comoloca la primera reina
-     * @param columnaReinaInicial Columna donde el usuario coloca la segunda reina
+     * Método principal para iniciar la búsqueda de todas las soluciones válidas
+     * a partir de una posición inicial para la primera reina especificada por el usuario.
+     *
+     * @param filaReinaInicial    La fila (0-indexada) donde el usuario coloca la primera reina.
+     * @param columnaReinaInicial La columna (0-indexada) donde el usuario coloca la primera reina.
      */
-    public void mEncontrarSolucionesConReinaInicial(int filaReinaInicial, int columnaReinaInicial){
-        this.solucionesEncontradas.clear(); // Limpiar soluciones previas
+    public void mEncontrarSolucionesConReinaInicial(int filaReinaInicial, int columnaReinaInicial) {
+        this.solucionesEncontradas.clear(); // Limpiar soluciones de ejecuciones previas
         this.tableroActual = new Tablero(this.tamanoTablero);
 
-        // Valudar que la posicion inicial sea valida
-        if (!this.tableroActual.mEsPosicionValida(filaReinaInicial, columnaReinaInicial)){
+        // Validar que la posición inicial sea válida
+        if (!this.tableroActual.mEsPosicionValida(filaReinaInicial, columnaReinaInicial)) {
             System.err.println("Error: la posicion inicial de la reina esta fuera del tablero.");
+            // Considerar lanzar una excepción aquí en lugar de solo imprimir en System.err
             return;
         }
         // Colocar la primera reina especificada por el usuario
         this.tableroActual.mColocarReina(filaReinaInicial, columnaReinaInicial);
 
-        // Guardar la posicion fija para no intentar mover esta reina
+        // Guardar la posición fija para no intentar mover esta reina
         this.filaInicialFija = filaReinaInicial;
         this.columnaInicialFija = columnaReinaInicial;
 
-        /*Iniciar el proceso recursuvi para las reinas restantes
-         * Empezamos a intentar colocar las reinas desde la columna 0
-         * Se salta la columna donde ya esta la reina inicial
-         */
+        // Iniciar el proceso recursivo para las reinas restantes.
+        // Se empieza a intentar colocar reinas desde la columna 0.
         mResolverRecursivo(0);
 
-        // Resetar posiciones fijas en caso de volver a llamar al metodo
+        // Resetear las posiciones fijas para futuras llamadas.
         this.filaInicialFija = -1;
         this.columnaInicialFija = -1;
 
-        if (this.solucionesEncontradas.isEmpty()){
-            System.out.println("No se encontraron soluciones para la poscion inicial dada.");
+        if (this.solucionesEncontradas.isEmpty()) {
+            // Este mensaje podría ir a la vista en un diseño MVC más estricto.
+            System.out.println("No se encontraron soluciones para la posicion inicial dada.");
         }
     }
 
     /**
-     * Metodo recursivo (BackTracking) para intentar colocar las reinas
-     * Se intenta colocar una reina en cada columna
-     * @param columna La columna actual en la que se intenta ubicar una reina
+     * Implementa el algoritmo de backtracking de forma recursiva para colocar las reinas.
+     * Intenta colocar una reina en cada columna, una por una.
+     *
+     * @param columna La columna actual (0-indexada) en la que se intenta colocar una reina.
+     * @return {@code true} si se encontró al menos una solución a partir de esta rama de
+     * la recursión, {@code false} en caso contrario. Este valor de retorno ayuda
+     * a saber si una rama particular fue fructífera, pero el algoritmo continúa
+     * buscando todas las soluciones independientemente.
      */
-    private boolean mResolverRecursivo(int columna){
-        // Caso uno: Si todas las reinas estan colocadas
-        if (columna == this.tamanoTablero){
-            // Se encuentra solucion valida
+    private boolean mResolverRecursivo(int columna) {
+        // Caso base: Si todas las reinas están colocadas (hemos procesado todas las columnas)
+        if (columna == this.tamanoTablero) {
+            // Se encontró una configuración válida completa.
             this.solucionesEncontradas.add(this.tableroActual.mGetTableroState());
-            //this.tableroActual.mImprimirTableroConsola(); para debug rapido
-            return true; // Devuelve true para indicar que encontro una solucion
+            return true; // Indica que esta rama llevó a una solución.
         }
 
         boolean seEncontroSolucionEnEstaRama = false;
 
-        // Siguiente columna 
-        if (columna == this.columnaInicialFija){
-            if (mResolverRecursivo(columna + 1)){
+        // Si la columna actual es donde el usuario fijó la primera reina,
+        // no intentamos colocar otra reina aquí; avanzamos a la siguiente columna.
+        if (columna == this.columnaInicialFija) {
+            if (mResolverRecursivo(columna + 1)) {
                 seEncontroSolucionEnEstaRama = true;
-                // Aun no se retorna, buscamos todas las soluciones
+                // No retornamos inmediatamente para buscar todas las soluciones.
             }
         } else {
-            // Colocar una reina en cada fila de la columna actual
-            for (int fila = 0; fila < this.tamanoTablero; fila++){
-                // Verifica si es seguro colocar la reina en el tablero
-                if (this.tableroActual.mEsSeguro(fila, columna)){
-                    // Coloca la reina
+            // Intentar colocar una reina en cada fila de la columna actual
+            for (int fila = 0; fila < this.tamanoTablero; fila++) {
+                // Verificar si es seguro colocar la reina en tableroActual[fila][columna]
+                if (this.tableroActual.mEsSeguro(fila, columna)) {
+                    // Colocar la reina
                     this.tableroActual.mColocarReina(fila, columna);
 
-                    // Llama recursiva para siguiente columna
-                    if (mResolverRecursivo(columna + 1)){
+                    // Llamada recursiva para la siguiente columna
+                    if (mResolverRecursivo(columna + 1)) {
                         seEncontroSolucionEnEstaRama = true;
-                        // Aun no se retorna, buscamos todas las soluciones
+                        // No retornamos inmediatamente para buscar todas las soluciones.
                     }
 
-                    // BackTrack: Quitar la reina si no lleva a una solucion
+                    // Backtrack: Quitar la reina para probar otras posibilidades en esta columna
+                    // y para permitir que llamadas recursivas anteriores prueben otras ramas.
                     this.tableroActual.mQuitarReina(fila, columna);
                 }
             }
         }
-        return seEncontroSolucionEnEstaRama; // Indica si se encontraron soluciobnes
+        // Este retorno es más para el flujo interno del backtracking,
+        // no detiene la búsqueda de todas las soluciones.
+        return seEncontroSolucionEnEstaRama;
     }
 
 
     /**
-     * Devuelve la lista de soluciones encontradas
-     * Cada solucion es una representacion del estado del tablero
-     * @return Lista de soluciones
+     * Devuelve la lista de todas las soluciones encontradas.
+     * Cada solución es una representación del estado del tablero (matriz {@code int[][]}).
+     *
+     * @return Una {@code List<int[][]>} con todas las soluciones válidas.
+     * La lista estará vacía si no se encontraron soluciones.
      */
-    public List<int[][]> mGetSoluciones(){
+    public List<int[][]> mGetSoluciones() {
         return this.solucionesEncontradas;
     }
 
-    public int mGetNumeroDeSoluciones(){
+    /**
+     * Devuelve el número total de soluciones encontradas.
+     *
+     * @return El conteo de soluciones.
+     */
+    public int mGetNumeroDeSoluciones() {
         return this.solucionesEncontradas.size();
     }
-
-
-
-    
 }
