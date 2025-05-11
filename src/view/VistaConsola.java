@@ -16,30 +16,47 @@ public class VistaConsola {
      */
     public void mMostrarTablero(int[][] tableroState){
         if (tableroState == null){
-            System.out.println("El estado del tablero es nulo");
+            System.out.println("El Estado del tablero es nulo");
             return;
         }
         int tamano = tableroState.length;
         System.out.println("Tablero (" + tamano + "x" + tamano + "):");
-        // Imprime el encabezado de las columnas
-        System.out.println("");
+
+        // Encabezado columnas
+        System.out.print("    ");
         for (int j = 0; j < tamano; j++){
-            System.out.println(j + " ");
+            System.out.print(String.format("%-3d", j));
         }
         System.out.println();
 
+        // Linea separadora del tablero
+        System.out.print("   +");
+        for (int j = 0; j < tamano; j++){
+            System.out.print("---");
+        }
+        System.out.println("+");
+
+        // Imprimir cada fila del tablero
         for (int i = 0; i < tamano; i++){
-            System.out.println(i + " "); // Numero fila
+            System.out.print(String.format("%3d|", i));
+
+            // Imprimir el contenido de cada celda en la fila
             for (int j = 0; j < tamano; j++){
-                if (tableroState [i][j] == 1){
-                    System.out.println("R "); // Reina
+                if (tableroState[i][j] == 1){
+                    System.out.print(" R ");
                 } else {
-                    System.out.println(" "); // Casilla vacia
+                    System.out.print(" . ");
                 }
             }
-            System.out.println(); // Nueva linea al final de cada fi;a
+            System.out.println("|");
         }
-        System.out.println("---------------------");
+
+        // Linea separadora inferior del tablero
+        System.out.print("   +");
+        for (int j = 0; j < tamano; j++){
+            System.out.print("---");
+        }
+        System.out.println("+");
     }
 
 
